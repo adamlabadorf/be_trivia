@@ -46,7 +46,13 @@ def draw_centered_multiline_label(label,**kwargs) :
         label.draw()
 
 def draw_scaled_multiline_label(label,**kwargs) :
-    IWASWORKINGHERE
+
+    label = pyglet.text.Label(multiline=True,width=dims[0]*.9,**shadow_args)
+    if label.content_height > dims[1]*.9 :
+        shadow_args['font_size'] -= 1
+        draw_scaled_multiline_label(label,**kwargs)
+    else :
+        label.draw()
 
 dropshadow_offset = 2
 dropshadow_level = 128 
@@ -78,11 +84,7 @@ def draw_dropshadow_multiline(**kwargs) :
     shadow_args['x'] += dropshadow_offset
     shadow_args['color'] = (dropshadow_level,)*3+(255,)
     label = pyglet.text.Label(multiline=True,width=dims[0]*.9,**shadow_args)
-
-    if label.content_height > dims[1]*.9 :
-        shadow_args['font_size'] -= 1
-    else :
-        label.draw()
+    IWASWORKINGHERE
 
 
 last_sound_question = (-1,-1,-1)
