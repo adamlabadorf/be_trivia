@@ -1,0 +1,39 @@
+[
+    {
+        "bg": "background_img.jpg",
+        "intro_anim": "intro_animation.mpg",
+        "font": "OldSansBlack",
+        "questions": [
+          ["Why is a raven like a writing desk and all that junk?",
+           "Because the desk is FREAKED OUT."
+          ],
+          ["img:0-usa.png"]
+         ]
+    },
+    {
+        "bg": "background_img.jpg",
+        "intro_anim": "intro_animation_2.mpg",
+        "font": "OldSansBlack",
+        "questions": [
+          ["What is a power law?",
+           "y(x) \\propto x^{-\\lambda}, x > x_0"
+          ],
+          ["yup",
+           "nope"
+          ]
+        ]
+    },
+    {
+        "bg": "bonus_bg.jpg",
+        "intro_anim": "some_anim.mpg",
+        "font": "OldSansBlack",
+        "questions": [
+          [ ["img:lute.jpg","snd:lute.wav"],
+            "Lute, Western Europe, 1st-2nd millenium"
+          ],
+          [ ["img:berimbau.jpg","snd:berimbau.wav"],
+            "Berimbau, Brazil, 19th-present day"
+          ]
+        ]
+    }
+]
