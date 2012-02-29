@@ -1,6 +1,6 @@
 [
     {
-        "bg": "background_img.jpg",
+        "bg": "jeopardy-splash.jpg",
         "intro_anim": "intro_animation.mpg",
         "font": "OldSansBlack",
         "questions": [
@@ -11,7 +11,7 @@
          ]
     },
     {
-        "bg": "background_img.jpg",
+        "bg": "jeopardy-splash.jpg",
         "intro_anim": "intro_animation_2.mpg",
         "font": "OldSansBlack",
         "questions": [
@@ -20,11 +20,12 @@
           ],
           ["yup",
            "nope"
-          ]
+          ],
+          ["1. power law\n2. maybe\n3. stuff"]
         ]
     },
     {
-        "bg": "bonus_bg.jpg",
+        "bg": "jeopardy-splash.jpg",
         "intro_anim": "some_anim.mpg",
         "font": "OldSansBlack",
         "questions": [
