@@ -45,9 +45,9 @@ def draw_centered_multiline_label(label,**kwargs) :
         label = pyglet.text.Label(**mod_kwargs)
         label.draw()
 
-def draw_scaled_multiline_label(label,**kwargs) :
+def draw_scaled_multiline_label(**kwargs) :
 
-    label = pyglet.text.Label(multiline=True,width=dims[0]*.9,**shadow_args)
+    label = pyglet.text.Label(multiline=True,width=dims[0]*.9,**kwargs)
     if label.content_height > dims[1]*.9 :
         shadow_args['font_size'] -= 1
         draw_scaled_multiline_label(label,**kwargs)
@@ -83,8 +83,10 @@ def draw_dropshadow_multiline(**kwargs) :
     shadow_args['y'] -= dropshadow_offset
     shadow_args['x'] += dropshadow_offset
     shadow_args['color'] = (dropshadow_level,)*3+(255,)
-    label = pyglet.text.Label(multiline=True,width=dims[0]*.9,**shadow_args)
-    IWASWORKINGHERE
+    draw_scaled_multiline_label(**shadow_args)
+    
+    # actual text
+    draw_scaled_multiline_label(**kwargs)
 
 
 last_sound_question = (-1,-1,-1)
@@ -152,19 +154,26 @@ def last_stage() :
 @window.event
 def on_draw():
     window.clear()
-
-    # do background
-    #TODO
-
+    
     # read current question index
     global curr_question_id, curr_section_id
     curr_section = sections[curr_section_id]
+    
+    # do background
+    bg_img = pyglet.resource.image(curr_section["bg"])
+    bg_sprite = pyglet.sprite.Sprite(bg_img)
+    bg_sprite.scale = 1.*dims[0] / bg_sprite.width
+    bg_sprite.draw()
 
     stage = curr_section["questions"][curr_question_id][curr_stage_id]
     font_name = curr_section.get("font")
     font = pyglet.font.load(font_name)
+    # per documentation, pyglet uses 96 DPI
+    # calculate font size so it's 1/10 the
+    # height of the screen
+    font_size = (window.height/10)
     label_args = {'font_name':font_name,
-                  'font_size':36,
+                  'font_size':font_size,
                   'anchor_x':'center',
                   'anchor_y':'center',
                   'x': dims[0]/2,
@@ -197,6 +206,9 @@ def on_text_motion(motion) :
     elif motion == pyglet.window.key.MOTION_DOWN :
         next_stage()
 
-
+@window.event
+def on_key_press(k,m):
+    if k == ord('f') :
+        window.set_fullscreen(not window.fullscreen)
 if __name__ == '__main__' :
     pyglet.app.run()
