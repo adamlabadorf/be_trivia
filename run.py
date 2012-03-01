@@ -39,6 +39,9 @@ curr_section_id = 0
 curr_question_id = 0
 curr_stage_id = 0
 
+# store question labels so we only have to create them once
+question_labels = {}
+
 # load questions from json file
 if len(sys.argv) == 1 :
     sys.stderr.write('Usage: %s <json file>'%(sys.argv[0]))
@@ -56,7 +59,10 @@ for l in json_f :
         json_str += re.sub('#.*$','',l)
 sections = json.loads(json_str)
 
-def draw_centered_multiline_label(label,**kwargs) :
+def get_centered_multiline_label(**kwargs) :
+    print 'entered get_centered_multiline_label'
+    label = pyglet.text.Label(**kwargs)
+    
     mod_kwargs = deepcopy(kwargs)
     line_height = label.content_height
     avg_pixels_per_char = label.content_width/len(mod_kwargs['text'])
@@ -66,55 +72,62 @@ def draw_centered_multiline_label(label,**kwargs) :
     num_lines = len(to_wrap)
     start_y = dims[1]/2+int(num_lines*line_height)/2
 
-    for i, wrap_txt in enumerate(to_wrap) :
-        mod_kwargs['y'] = start_y - i*line_height
-        mod_kwargs['text'] = wrap_txt
-        label = pyglet.text.Label(**mod_kwargs)
-        label.draw()
+    if line_height*num_lines > dims[1]*.9 :
+        mod_kwargs['font_size'] -= 5
+        return get_centered_multiline_label(**mod_kwargs)
+    else :
+        labels = []
+        for i, wrap_txt in enumerate(to_wrap) :
+            mod_kwargs['y'] = start_y - i*line_height
+            mod_kwargs['text'] = wrap_txt
+            label = pyglet.text.Label(**mod_kwargs)
+            labels.append(label)
+        return labels
 
-def draw_scaled_multiline_label(**kwargs) :
+def get_scaled_multiline_label(**kwargs) :
 
     label = pyglet.text.Label(multiline=True,width=dims[0]*.9,**kwargs)
     if label.content_height > dims[1]*.9 :
         shadow_args['font_size'] -= 1
-        draw_scaled_multiline_label(label,**kwargs)
+        return get_scaled_multiline_label(label,**kwargs)
     else :
-        label.draw()
+        return [label]
 
 dropshadow_offset = 3
 dropshadow_level = 0 
-def draw_dropshadow_label(**kwargs) :
+def get_dropshadowed_labels(**kwargs) :
     # shadow
     shadow_args = deepcopy(kwargs)
     shadow_args['y'] -= dropshadow_offset
     shadow_args['x'] += dropshadow_offset
     shadow_args['color'] = (dropshadow_level,)*3+(255,)
-    label = pyglet.text.Label(**shadow_args)
+    shadow_label = get_centered_multiline_label(**shadow_args)
+    
+    label = get_centered_multiline_label(**kwargs)
+    
+    return label, shadow_label
 
-    # the text might be too wide for the screen and multiline=True
-    # doesn't center justify the way I want it, so split it up
-    if label.content_width > dims[0]*.9 :
-        draw_centered_multiline_label(label,**shadow_args)
-        draw_centered_multiline_label(pyglet.text.Label(**kwargs),**kwargs)
-    else :
-        # shadow
-        label.draw()
-
-        # text
-        label = pyglet.text.Label(**kwargs)
-        label.draw()
-
-def draw_dropshadow_multiline(**kwargs) :
+def get_dropshadowed_multiline(**kwargs) :
     # shadow
     shadow_args = deepcopy(kwargs)
     shadow_args['y'] -= dropshadow_offset
     shadow_args['x'] += dropshadow_offset
     shadow_args['color'] = (dropshadow_level,)*3+(255,)
-    draw_scaled_multiline_label(**shadow_args)
+    shadow_label = get_scaled_multiline_label(**shadow_args)
     
     # actual text
-    draw_scaled_multiline_label(**kwargs)
+    label = get_scaled_multiline_label(**kwargs)
 
+    return label, shadow_label
+
+def blit_scaled_image(path,x,y,w,h):
+    pil_bg_img = pil_imgs[path]
+    out = pil_bg_img.resize((w,h))
+    bg_img = pyglet.image.ImageData(w,h,out.mode,out.tostring(),pitch=-dims[0]*3)
+    bg_sprite = pyglet.sprite.Sprite(bg_img)
+    bg_sprite.set_position(x, y)
+    bg_sprite.scale = 1.*dims[0] / bg_sprite.width
+    bg_sprite.draw()
 
 last_sound_question = (None,)*3
 player = None
@@ -145,17 +158,25 @@ def handle_stage_input(stage_txt,**label_args) :
             last_sound_question = curr_stage_id, curr_question_id, curr_section_id
             source = pyglet.resource.media(path)
             player = source.play()
-            print 'playing video'
         if player and player.playing :
             texture = player.get_texture()
             texture.anchor_x = texture.width/2
             texture.anchor_y = texture.height/2
             texture.blit(dims[0]/2,dims[1]/2)
+    elif stage_txt.startswith('splash:') :
+        tag, path = stage_txt.split(':',1)
+        blit_scaled_image(path,0,0,dims[0],dims[1])
     else :
-        if stage_txt.count('\n') != 0 :
-            draw_dropshadow_multiline(text=stage_txt,**label_args)
-        else :
-            draw_dropshadow_label(text=stage_txt,**label_args)
+        
+        label, shadow_label = question_labels.get(stage_txt,(None,None))
+        if label is None or shadow_label is None :
+            if stage_txt.count('\n') != 0 :
+                label, shadow_label = get_dropshadowed_multiline(text=stage_txt,**label_args)
+            else :
+                label, shadow_label = get_dropshadowed_labels(text=stage_txt,**label_args)
+            question_labels[stage_txt] = label, shadow_label
+        for sublabel in shadow_label + label :
+            sublabel.draw()
 
 def reset_player() :
     global last_sound_question, player
@@ -213,13 +234,8 @@ def on_draw():
     curr_section = sections[curr_section_id]
     
     # do background
-    bg_path = os.path.join('resources',curr_section["bg"])
-    pil_bg_img = pil_imgs[curr_section["bg"]]
-    out = pil_bg_img.resize((dims[0],dims[1]))
-    bg_img = pyglet.image.ImageData(dims[0],dims[1],out.mode,out.tostring(),pitch=-dims[0]*3)
-    bg_sprite = pyglet.sprite.Sprite(bg_img)
-    bg_sprite.scale = 1.*dims[0] / bg_sprite.width
-    bg_sprite.draw()
+    blit_scaled_image(curr_section["bg"],0,0,dims[0],dims[1])
+    
     stage = curr_section["questions"][curr_question_id][curr_stage_id]
     font_name = curr_section.get("font")
     font = pyglet.font.load(font_name)
