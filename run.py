@@ -124,7 +124,7 @@ def handle_stage_input(stage_txt,**label_args) :
         img = pyglet.resource.image(path)
         img.anchor_x = img.width/2
         img.anchor_y = img.height/2
-        # check to see if we need to scale the image
+        # scale the image if necessary
         img_sprite = pyglet.sprite.Sprite(img)
         img_sprite.scale = min(1.*(dims[0]*.75)/img.width,1.*(dims[1]*.75)/img.height,1.)
         img_sprite.set_position(dims[0]/2,dims[1]/2)
@@ -135,12 +135,22 @@ def handle_stage_input(stage_txt,**label_args) :
         if (curr_stage_id, curr_question_id, curr_section_id) != last_sound_question :
             reset_player()
             last_sound_question = curr_stage_id, curr_question_id, curr_section_id
-            source = pyglet.media.load(os.path.join('resources',path),streaming=False)
+            source = pyglet.resource.media(path)
             player = source.play()
-            #player.queue(source)
-            #print 'queueing new source'
-            #player.next()
-            #player.play()
+    elif stage_txt.startswith('vid:') : # play video
+        tag, path = stage_txt.split(':',1)
+        global last_sound_question, player
+        if (curr_stage_id, curr_question_id, curr_section_id) != last_sound_question :
+            reset_player()
+            last_sound_question = curr_stage_id, curr_question_id, curr_section_id
+            source = pyglet.resource.media(path)
+            player = source.play()
+            print 'playing video'
+        if player and player.playing :
+            texture = player.get_texture()
+            texture.anchor_x = texture.width/2
+            texture.anchor_y = texture.height/2
+            texture.blit(dims[0]/2,dims[1]/2)
     else :
         if stage_txt.count('\n') != 0 :
             draw_dropshadow_multiline(text=stage_txt,**label_args)
@@ -150,11 +160,11 @@ def handle_stage_input(stage_txt,**label_args) :
 def reset_player() :
     global last_sound_question, player
     try:
-        #player.pause()
         player.stop()
-        last_sound_question = (None,)*3
     except Exception, e:
             print e
+            
+    last_sound_question = (None,)*3
     player = None
     
 def last_question() :
