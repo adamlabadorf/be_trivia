@@ -10,7 +10,7 @@
          ]
     },
     {
-        "bg": "grey_bg.jpg",
+        "bg": "grey_bg.png",
         "font": "OldSansBlack",
         "questions": [
           ["What is a power law?",
