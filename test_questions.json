@@ -21,6 +21,7 @@
           ["yup",
            "nope"
           ],
+          # nonstandard JSON! comments are stripped out
           ["1. power law\n2. maybe\n3. stuff"]
         ]
     },
