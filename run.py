@@ -60,7 +60,6 @@ for l in json_f :
 sections = json.loads(json_str)
 
 def get_centered_multiline_label(**kwargs) :
-    print 'entered get_centered_multiline_label'
     label = pyglet.text.Label(**kwargs)
     
     mod_kwargs = deepcopy(kwargs)
@@ -123,10 +122,8 @@ def get_dropshadowed_multiline(**kwargs) :
 def blit_scaled_image(path,x,y,w,h):
     pil_bg_img = pil_imgs[path]
     out = pil_bg_img.resize((w,h))
-    bg_img = pyglet.image.ImageData(w,h,out.mode,out.tostring(),pitch=-dims[0]*3)
+    bg_img = pyglet.image.ImageData(w,h,out.mode,out.tostring(),pitch=-w*len(out.mode))
     bg_sprite = pyglet.sprite.Sprite(bg_img)
-    bg_sprite.set_position(x, y)
-    bg_sprite.scale = 1.*dims[0] / bg_sprite.width
     bg_sprite.draw()
 
 last_sound_question = (None,)*3
@@ -287,8 +284,10 @@ def on_key_press(k,m):
         window.set_fullscreen(not window.fullscreen)
         window.display.get_default_screen()
         screen = window.display.get_default_screen()
-        global dims
+        global dims, question_labels
         dims = window.width, window.height
+        # will need to recache all the labels
+        question_labels = {}
     elif k == ord('r') :
         reset_player()
         

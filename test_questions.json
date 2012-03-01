@@ -7,6 +7,7 @@
            "Because the desk is FREAKED OUT."
           ],
           ["img:0-usa.png"],
+          ["Recently, at the 84th Academy Awards ceremony, silent film The Artist took home the award for Best Picture. The last time a silent film won Best Picture was in 1928 at the first Academy Awards ceremony – what is the name of this film?"],
           ["vid:Blades.avi"]
          ]
     },
@@ -14,6 +15,7 @@
         "bg": "grey_bg.png",
         "font": "OldSansBlack",
         "questions": [
+          ["splash:thrones_of_the_world.png"],
           ["What is a power law?",
            "y(x) \\propto x^{-\\lambda}, x > x_0"
           ],
