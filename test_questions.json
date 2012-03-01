@@ -1,7 +1,6 @@
 [
     {
-        "bg": "jeopardy-splash.jpg",
-        "intro_anim": "intro_animation.mpg",
+        "bg": "blue_bg.png",
         "font": "OldSansBlack",
         "questions": [
           ["Why is a raven like a writing desk and all that junk?",
@@ -11,8 +10,7 @@
          ]
     },
     {
-        "bg": "jeopardy-splash.jpg",
-        "intro_anim": "intro_animation_2.mpg",
+        "bg": "grey_bg.jpg",
         "font": "OldSansBlack",
         "questions": [
           ["What is a power law?",
@@ -27,7 +25,6 @@
     },
     {
         "bg": "jeopardy-splash.jpg",
-        "intro_anim": "some_anim.mpg",
         "font": "OldSansBlack",
         "questions": [
           [ ["img:lute.jpg","snd:lute.wav"],
