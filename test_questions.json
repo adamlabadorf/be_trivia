@@ -3,12 +3,18 @@
         "bg": "blue_bg.png",
         "font": "OldSansBlack",
         "questions": [
-          ["Why is a raven like a writing desk and all that junk?",
-           "Because the desk is FREAKED OUT."
-          ],
-          ["img:0-usa.png"],
-          ["Recently, at the 84th Academy Awards ceremony, silent film The Artist took home the award for Best Picture. The last time a silent film won Best Picture was in 1928 at the first Academy Awards ceremony – what is the name of this film?"],
-          ["vid:Blades.avi"]
+          ["splash:country_splash.png"],
+          ["img:0 - usa.png","USA"],
+          ["img:1 - way_scribble.png","Scribble"],
+          ["img:2 - spain.png","Spain"],
+          ["img:3 - mongolia.png","Mongolia"],
+          ["img:4 - sorta_scribble.png","Scribble that looks quite a bit like New Jersey but is not, in fact, New Jersey"],
+          ["img:5 - horned_beetle.png","img:5 - horned_beetle_answer.png"],
+          ["img:6 - finland.png","Finland Finland Finland"],
+          ["img:7 - egg_roll.png","img:7 - egg_roll_answer.png"],
+          ["img:8 - turkey.png","img:8 - turkey_answer.png"],
+          ["img:9 - turkey.png","Turkey, the country"],
+          ["img:a - country.png","img:a - country_answer.png"]
          ]
     },
     {
@@ -23,7 +29,9 @@
            "nope"
           ],
           # nonstandard JSON! comments are stripped out
-          ["1. power law\n2. maybe\n3. stuff"]
+          ["1. power law\n2. maybe\n3. stuff"],
+          ["Recently, at the 84th Academy Awards ceremony, silent film The Artist took home the award for Best Picture. The last time a silent film won Best Picture was in 1928 at the first Academy Awards ceremony – what is the name of this film?"],
+          ["vid:Blades.avi"]
         ]
     },
     {
