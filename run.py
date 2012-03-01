@@ -81,8 +81,8 @@ def draw_scaled_multiline_label(**kwargs) :
     else :
         label.draw()
 
-dropshadow_offset = 2
-dropshadow_level = 128 
+dropshadow_offset = 3
+dropshadow_level = 0 
 def draw_dropshadow_label(**kwargs) :
     # shadow
     shadow_args = deepcopy(kwargs)
@@ -116,8 +116,8 @@ def draw_dropshadow_multiline(**kwargs) :
     draw_scaled_multiline_label(**kwargs)
 
 
-last_sound_question = (-1,-1,-1)
-last_player = None
+last_sound_question = (None,)*3
+player = None
 def handle_stage_input(stage_txt,**label_args) :
     if stage_txt.startswith('img:') : # display image
         tag, path = stage_txt.split(':',1)
@@ -131,23 +131,32 @@ def handle_stage_input(stage_txt,**label_args) :
         img_sprite.draw()
     elif stage_txt.startswith('snd:') : # play sound
         tag, path = stage_txt.split(':',1)
-        global last_sound_question, last_player
+        global last_sound_question, player
         if (curr_stage_id, curr_question_id, curr_section_id) != last_sound_question :
-            if last_player is not None :
-                try :
-                    last_player.stop()
-                except :
-                    pass # whatever
+            reset_player()
             last_sound_question = curr_stage_id, curr_question_id, curr_section_id
-            source = pyglet.media.load(os.path.join('resources',path))
+            source = pyglet.media.load(os.path.join('resources',path),streaming=False)
             player = source.play()
-            last_player = player
+            #player.queue(source)
+            #print 'queueing new source'
+            #player.next()
+            #player.play()
     else :
         if stage_txt.count('\n') != 0 :
             draw_dropshadow_multiline(text=stage_txt,**label_args)
         else :
             draw_dropshadow_label(text=stage_txt,**label_args)
 
+def reset_player() :
+    global last_sound_question, player
+    try:
+        #player.pause()
+        player.stop()
+        last_sound_question = (None,)*3
+    except Exception, e:
+            print e
+    player = None
+    
 def last_question() :
     global curr_stage_id, curr_question_id, curr_section_id
     curr_section_questions = sections[curr_section_id]["questions"]
@@ -197,7 +206,7 @@ def on_draw():
     bg_path = os.path.join('resources',curr_section["bg"])
     pil_bg_img = pil_imgs[curr_section["bg"]]
     out = pil_bg_img.resize((dims[0],dims[1]))
-    bg_img = pyglet.image.ImageData(dims[0],dims[1],"RGB",out.tostring(),pitch=-dims[0]*3)
+    bg_img = pyglet.image.ImageData(dims[0],dims[1],out.mode,out.tostring(),pitch=-dims[0]*3)
     bg_sprite = pyglet.sprite.Sprite(bg_img)
     bg_sprite.scale = 1.*dims[0] / bg_sprite.width
     bg_sprite.draw()
@@ -227,6 +236,7 @@ def on_draw():
 
 @window.event
 def on_mouse_press(x,y,button,z):
+    reset_player()
     if button == 1 :
         next_question()
     elif button == 4 :
@@ -235,8 +245,10 @@ def on_mouse_press(x,y,button,z):
 @window.event
 def on_text_motion(motion) :
     if motion == pyglet.window.key.MOTION_LEFT :
+        reset_player()
         last_question()
     elif motion == pyglet.window.key.MOTION_RIGHT :
+        reset_player()
         next_question()
     elif motion == pyglet.window.key.MOTION_UP :
         last_stage()
@@ -251,6 +263,8 @@ def on_key_press(k,m):
         screen = window.display.get_default_screen()
         global dims
         dims = window.width, window.height
+    elif k == ord('r') :
+        reset_player()
         
 if __name__ == '__main__' :
     pyglet.app.run()
