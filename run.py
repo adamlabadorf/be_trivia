@@ -3,10 +3,13 @@
 import glob
 import json
 import os
+import re
+import sys
 import textwrap
 
 from copy import deepcopy
 
+from PIL import Image
 import pyglet
 pyglet.resource.path = ['resources']
 pyglet.resource.reindex()
@@ -16,6 +19,17 @@ ttf_paths = glob.glob(os.path.join('resources','*.ttf'))
 for p in ttf_paths :
     pyglet.font.add_file(p)
 
+# load all the images as PIL images so we can scale them
+# arbitrarily if we need to
+img_paths = []
+img_suffixes = ('.png','.jpg')
+pil_imgs = {}
+for suffix in img_suffixes :
+    img_paths = glob.glob(os.path.join('resources','*%s'%suffix))
+    for path in img_paths :
+        img_dir, img_fn = os.path.split(path)
+        pil_imgs[img_fn] = Image.open(path)
+        
 # the main presentation window
 dims = 1200, 900
 window = pyglet.window.Window(*dims)
@@ -26,8 +40,21 @@ curr_question_id = 0
 curr_stage_id = 0
 
 # load questions from json file
-section_fn = "test_questions.json"
-sections = json.load(open(section_fn))
+if len(sys.argv) == 1 :
+    sys.stderr.write('Usage: %s <json file>'%(sys.argv[0]))
+    sys.exit(1)
+else :
+    section_fn = sys.argv[1]
+# our JSON format allows comments starting with #
+# strip them out before sending to load
+json_f = open(section_fn)
+json_str = ''
+for l in json_f :
+    if l.strip().startswith('#') :
+        continue
+    else :
+        json_str += re.sub('#.*$','',l)
+sections = json.loads(json_str)
 
 def draw_centered_multiline_label(label,**kwargs) :
     mod_kwargs = deepcopy(kwargs)
@@ -97,7 +124,11 @@ def handle_stage_input(stage_txt,**label_args) :
         img = pyglet.resource.image(path)
         img.anchor_x = img.width/2
         img.anchor_y = img.height/2
-        img.blit(dims[0]/2,dims[1]/2)
+        # check to see if we need to scale the image
+        img_sprite = pyglet.sprite.Sprite(img)
+        img_sprite.scale = min(1.*(dims[0]*.75)/img.width,1.*(dims[1]*.75)/img.height,1.)
+        img_sprite.set_position(dims[0]/2,dims[1]/2)
+        img_sprite.draw()
     elif stage_txt.startswith('snd:') : # play sound
         tag, path = stage_txt.split(':',1)
         global last_sound_question, last_player
@@ -125,7 +156,9 @@ def last_question() :
     if curr_question_id < 0 :
         if curr_section_id > 0 :
             curr_section_id -= 1
+            curr_section_questions = sections[curr_section_id]["questions"]
             curr_question_id = len(curr_section_questions)-1
+            curr_stage_id = 0
         else :
             curr_question_id = 0
 
@@ -136,6 +169,7 @@ def next_question() :
     curr_stage_id = 0
     if curr_question_id == len(curr_section_questions) :
         if curr_section_id == len(sections)-1 :
+            curr_section_questions = sections[curr_section_id]["questions"]
             curr_question_id = len(curr_section_questions)-1
         else :
             curr_section_id += 1
@@ -160,14 +194,17 @@ def on_draw():
     curr_section = sections[curr_section_id]
     
     # do background
-    bg_img = pyglet.resource.image(curr_section["bg"])
+    bg_path = os.path.join('resources',curr_section["bg"])
+    pil_bg_img = pil_imgs[curr_section["bg"]]
+    out = pil_bg_img.resize((dims[0],dims[1]))
+    bg_img = pyglet.image.ImageData(dims[0],dims[1],"RGB",out.tostring(),pitch=-dims[0]*3)
     bg_sprite = pyglet.sprite.Sprite(bg_img)
     bg_sprite.scale = 1.*dims[0] / bg_sprite.width
     bg_sprite.draw()
-
     stage = curr_section["questions"][curr_question_id][curr_stage_id]
     font_name = curr_section.get("font")
     font = pyglet.font.load(font_name)
+    
     # per documentation, pyglet uses 96 DPI
     # calculate font size so it's 1/10 the
     # height of the screen
@@ -210,5 +247,10 @@ def on_text_motion(motion) :
 def on_key_press(k,m):
     if k == ord('f') :
         window.set_fullscreen(not window.fullscreen)
+        window.display.get_default_screen()
+        screen = window.display.get_default_screen()
+        global dims
+        dims = window.width, window.height
+        
 if __name__ == '__main__' :
     pyglet.app.run()
