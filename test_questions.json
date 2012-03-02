@@ -18,6 +18,44 @@
          ]
     },
     {
+    	"bg": "grey_bg.png",
+    	"font": "OldSansBlack",
+    	"questions": [
+    	  ["splash:the_cinema.png"]
+    	]
+    },
+    {
+    	"bg": "grey_bg.png",
+    	"font": "OldSansBlack",
+    	"questions": [
+    	  ["splash:whos_on_top.png"],
+    	  ["United States Government","Barak Obama, President"],
+    	  ["Bill Gates","Microsoft, Chairman"],
+    	  ["Robert Gates","United States Secretary of Defense"],
+    	  ["Ban Ki-moon","United Nations, Secretary-General"],
+    	  ["Jose Manuel Barroso","European Commission, President"],
+    	  ["Facebook","Mark Zuckerberg"],
+    	  ["Dr. Margaret Chan","World Health Organization, Director-General"],
+    	  ["Massachusetts Institute of Technology","Susan Hockfield, President"],
+    	  ["Christine Lagarde","International Monetary Fund, Managing Director"],
+    	  ["Master Shredder","Teenage Mutant Ninja Turtles"]
+    	]
+    },
+        {
+    	"bg": "grey_bg.png",
+    	"font": "OldSansBlack",
+    	"questions": [
+    	  ["splash:general_knowledge.png"]
+    	]
+    },
+            {
+    	"bg": "blue_bg.png",
+    	"font": "OldSansBlack",
+    	"questions": [
+    	  ["splash:world_music.png"]
+    	]
+    },
+    {
         "bg": "grey_bg.png",
         "font": "OldSansBlack",
         "questions": [
